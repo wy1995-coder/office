@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>添加角色</title>
+    <link rel="stylesheet" type="text/css" href="/css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/demo/demo.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div align="center">
+    <div style="margin:20px 0;"></div>
+    <form id="addRole" method="post">
+        <table>
+            <tr>
+                <td>角色编码：</td>
+                <td><input name="rcode" class="f1 easyui-textbox"></td>
+            </tr>
+            <tr>
+                <td>角色名称：</td>
+                <td><input name="rname" class="f1 easyui-textbox"></td>
+            </tr>
+            <tr>
+                <td>一级功能：</td>
+                <td><input id="cc1" class="easyui-combobox" name="pids" data-options="
+                        valueField: 'pid',
+                        textField: 'pname',
+                        method: 'get',
+                        multiple:true,
+                        url: '/permission/getPermissisonByParentId?parentid=0',
+                        onSelect: function(rec){
+                            var url = '/permission/getPermissisonByParentId?parentid='+rec.pid;
+                            $('#cc2').combobox('reload', url);
+                    }">
+                    二级功能：<input id="cc2" name="pids" class="easyui-combobox" data-options="valueField:'pid',textField:'pname',multiple:true">
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div style="text-align:center;padding:5px 0">
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()" style="width:80px">添加</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()" style="width:80px">清除</a>
+    </div>
+</div>
+<script>
+    function submitForm(){
+        $('#addRole').form('submit', {
+            url:"role/addRole",
+            success:function(data){
+                var obj = eval("(" + data + ")");
+                alert(obj.message);
+                if (obj.success) {
+                    window.location.href="roleList.html";
+                } else {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+    function clearForm(){
+        $('#addRole').form('clear');
+    }
+</script>
+</body>
+</html>

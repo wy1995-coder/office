@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>角色列表</title>
+    <link rel="stylesheet" type="text/css" href="/css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/demo/demo.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div style="margin:20px 0;"></div>
+<div id="tb">
+    <a href="addRole.html" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">新增</a>
+    角色名称：<input type="text" name="rname" id="rname">
+    <a onclick="SearchRole()" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">查询</a>
+    <a onclick="Reset()" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">重置</a>
+    <a href="javascript:void(0)" onclick="BatchDeleteRole()" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true">批量删除</a>
+</div>
+<table id="dg"></table>
+
+</body>
+<script type="text/javascript">
+    $('#dg').datagrid({
+        url:'role/roleList',
+        columns:[[
+            {field:'rid',title:'角色id',width:100,checkbox:true},
+            {field:'rcode',title:'角色编码',width:100},
+            {field:'rname',title:'角色名称',width:100},
+            {field:'operate',title:'操作', width:80,
+                formatter: function(value,row,index){
+                    return "<a href=javascript:void(0) onclick=RoleDetail(" + row.rid + ")>详情</a>\
+                        <a href=javascript:void(0) onclick=UpdateRole(" + row.rid + ")>修改</a>\
+                        <a href=javascript:void(0) onclick=DeleteRole(" + row.rid + ")>删除</a>";
+                }
+            }
+
+        ]],
+        pagination:true,
+        pageNumber:1,
+        pageSize:5,
+        pageList:[5,10,15],
+        fitColumns:true,
+        toolbar: '#tb'
+    });
+
+    // 查询数据
+    function SearchRole() {
+        $('#dg').datagrid('load', {
+            rname: $('#rname').val()
+        });
+    }
+
+    // 重置查询
+    function Reset() {
+        $('#rname').val("");
+        $('#dg').datagrid('load', {
+            rname: $('#rname').val()
+        });
+    }
+
+    function UpdateRole(rid) {
+        $.ajax({
+            type:"post",
+            url:"/role/updateRoleByRid?rid="+rid,
+            success:function(data) {
+                if (data.success) {
+                    window.location.href="/updateRole.html";
+                }
+            }
+        });
+    }
+
+    function RoleDetail(rid) {
+        $.ajax({
+            type:"post",
+            url:"/role/updateRoleByRid?rid="+rid,
+            success:function(data) {
+                if (data.success) {
+                    window.location.href="/roleDetail.html";
+                }
+            }
+        });
+    }
+
+    function DeleteRole(rid) {
+        if (confirm("是否删除")){
+            $.ajax({
+                type:"post",
+                url:"/role/deleteRoleByrid?rid="+rid,
+                success:function(data) {
+                    alert(data.message);
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                }
+            });
+        }
+    }
+
+    function BatchDeleteRole() {
+        if (confirm("是否删除")) {
+            var obj = $('#dg').datagrid('getChecked');
+            var str = "";
+            for (var i = 0; i < obj.length; i++) {
+                str += obj[i].rid + ",";
+            }
+            $.ajax({
+                type:"post",
+                url:"/role/batchDeleteRole?rids="+str,
+                success:function(data) {
+                    alert(data.message);
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                }
+            })
+        }
+    }
+</script>
+</html>
+

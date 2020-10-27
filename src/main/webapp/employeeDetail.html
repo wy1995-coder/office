@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>修改员工</title>
+    <link rel="stylesheet" type="text/css" href="/css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/demo/demo.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div align="center">
+    <div style="margin:20px 0;"></div>
+    <form id="updateEmployee" method="post">
+        <table>
+            <tr>
+                <td>员工姓名：</td>
+                <td><input id="ename" name="ename" class="f1 easyui-textbox" readonly="readonly"></td>
+            </tr>
+            <tr>
+                <td>员工性别：</td>
+                <td>
+                    男：<input id="check1" type="radio" class="checkbox" name="esex" value="1" >
+                    女：<input id="check2" type="radio" class="checkbox" name="esex" value="0" >
+                </td>
+            </tr>
+            <tr>
+                <td>员工年龄：</td>
+                <td><input id="eage" name="eage" class="f1 easyui-textbox" readonly="readonly"></td>
+            </tr>
+            <tr>
+                <td>员工电话：</td>
+                <td><input id="phone" name="phone" class="f1 easyui-textbox" readonly="readonly"></td>
+            </tr>
+            <tr>
+                <td>入职日期：</td>
+                <td><input id="hireDate" name="hireDate" class="f1 easyui-datebox" data-options="formatter:myformatter,parser:myparser" readonly="readonly"></td>
+            </tr>
+            <tr>
+                <td>员工工号：</td>
+                <td><input id="jobnumber" name="jobnumber" class="f1 easyui-textbox" readonly="readonly"></td>
+            </tr>
+            <tr>
+                <td>员工角色：</td>
+                <td><input id="cc1" readonly="readonly" class="easyui-combobox" name="rids" data-options="
+                        valueField: 'rid',
+                        textField: 'rname',
+                        multiple:true,
+                        url: '/role/getRoleList4AddEmployee'">
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div style="text-align:center;padding:5px 0">
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()" style="width:80px">返回</a>
+    </div>
+</div>
+<script>
+
+    function myformatter(date){
+        var y = date.getFullYear();
+        var m = date.getMonth()+1;
+        var d = date.getDate();
+        return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+    }
+    function myparser(s){
+        if (!s) return new Date();
+        var ss = (s.split('-'));
+        var y = parseInt(ss[0],10);
+        var m = parseInt(ss[1],10);
+        var d = parseInt(ss[2],10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+            return new Date(y,m-1,d);
+        } else {
+            return new Date();
+        }
+    }
+
+    $(function($) {
+        $.ajax({
+            type:"post",
+            url:"employee/getEmployeeFromSession",
+            success:function(data) {
+                console.log(data);
+                $('#eid').val(data.eid);
+                $('#ename').textbox('setValue', data.ename);
+                if (data.esex === 1) {
+                    $('#check1').attr('checked', 'checked');
+                } else {
+                    $('#check2').attr('checked', 'checked');
+                }
+                $('#eage').textbox('setValue', data.eage);
+                $('#phone').textbox('setValue', data.phone);
+                $('#hireDate').datebox('setValue',data.hireDateStr);
+                $('#jobnumber').textbox('setValue', data.jobnumber);
+                $.each(data.roleList, function(i, n){
+                    $('#cc1').combobox('select', n.rid);
+                });
+
+            }
+        });
+    });
+
+    function clearForm(){
+        window.location.href="employeeList.html";
+    }
+</script>
+</body>
+</html>

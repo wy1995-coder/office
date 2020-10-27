@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>权限列表</title>
+    <link rel="stylesheet" type="text/css" href="/css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/demo/demo.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div style="margin:20px 0;"></div>
+<div id="tb">
+    <a href="addPermission.html" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">新增</a>
+    权限名称：<input type="text" name="pname" id="pname">
+    <a onclick="SearchPermission()" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">查询</a>
+    <a onclick="Reset()" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">重置</a>
+    <a href="javascript:void(0)" onclick="BatchDeletePermission()" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true">批量删除</a>
+</div>
+<table id="dg"></table>
+
+</body>
+<script type="text/javascript">
+    $('#dg').datagrid({
+        url:'permission/permissionList',
+        columns:[[
+            {field:'pid',title:'权限id',width:100,checkbox:true},
+            {field:'pcode',title:'权限编码',width:100},
+            {field:'pname',title:'功能名称',width:100},
+            {field:'purl',title:'功能链接',width:100},
+            {field:'remark1',title:'父级功能',width:100},
+            {field:'operate',title:'操作', width:80,
+                formatter: function(value,row,index){
+                    return "<a href=javascript:void(0) onclick=PermissionDetail(" + row.pid + ")>详情</a>\
+                        <a href=javascript:void(0) onclick=UpdatePermission(" + row.pid + ")>修改</a>\
+                        <a href=javascript:void(0) onclick=DeletePermission(" + row.pid + ")>删除</a>";
+                }
+            }
+
+        ]],
+        pagination:true,
+        pageNumber:1,
+        pageSize:5,
+        pageList:[5,10,15],
+        fitColumns:true,
+        toolbar: '#tb'
+    });
+
+    // 查询数据
+    function SearchPermission() {
+        $('#dg').datagrid('load', {
+            pname: $('#pname').val()
+        });
+    }
+
+    // 重置查询
+    function Reset() {
+        $('#pname').val("");
+        $('#dg').datagrid('load', {
+            pname: $('#pname').val()
+        });
+    }
+    
+    function UpdatePermission(pid) {
+        $.ajax({
+            type:"post",
+            url:"/permission/updatePermissionByPid?pid="+pid,
+            success:function(data) {
+                if (data.success) {
+                    window.location.href="/updatePermission.html";
+                }
+            }
+        });
+    }
+
+
+    function PermissionDetail(pid) {
+        $.ajax({
+            type:"post",
+            url:"/permission/updatePermissionByPid?pid="+pid,
+            success:function(data) {
+                if (data.success) {
+                    window.location.href="/permissionDetail.html";
+                }
+            }
+        });
+    }
+
+    function DeletePermission(pid) {
+        if (confirm("是否删除")){
+            $.ajax({
+                type:"post",
+                url:"/permission/deletePermissionByPid?pid="+pid,
+                success:function(data) {
+                    alert(data.message);
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                }
+            });
+        }
+    }
+
+
+    function BatchDeletePermission() {
+        if (confirm("是否删除")) {
+            var obj = $('#dg').datagrid('getChecked');
+            var str = "";
+            for (var i = 0; i < obj.length; i++) {
+                str += obj[i].pid + ",";
+            }
+            $.ajax({
+                type:"post",
+                url:"/permission/batchDeletePermission?pids="+str,
+                success:function(data) {
+                    alert(data.message);
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                }
+            })
+        }
+    }
+</script>
+</html>
+

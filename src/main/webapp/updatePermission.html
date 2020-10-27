@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>添加权限</title>
+    <link rel="stylesheet" type="text/css" href="/css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/demo/demo.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div align="center">
+    <div style="margin:20px 0;"></div>
+    <form id="updatePermsForm" method="post">
+        <input type="hidden" id="pid" name="pid" >
+        <table>
+            <tr>
+                <td>权限功能编码：</td>
+                <td><input name="pcode" id="pcode" class="f1 easyui-textbox"></td>
+            </tr>
+            <tr>
+                <td>权限功能名称：</td>
+                <td><input name="pname" id="pname" class="f1 easyui-textbox"></td>
+            </tr>
+            <tr>
+                <td>功能链接：</td>
+                <td><input name="purl" id="purl" class="f1 easyui-textbox"></td>
+            </tr>
+            <tr>
+                <td>功能级别：</td>
+                <td><input id="cc1" class="easyui-combobox" name="plevel" data-options="
+                        valueField: 'plevel',
+                        textField: 'plevelname',
+                        data: [{
+                            plevel: '1',
+                            plevelname: '一级功能',
+                        },{
+                            plevel: '2',
+                            plevelname: '二级功能',
+                        }],
+                        onSelect: function(rec){
+                        if(rec.plevel == 2) {
+                            $('#FirstPermission').removeAttr('style');
+                            var url = 'permission/getPermissionByLevel?plevel=1';
+                            $('#cc2').combobox('reload', url);
+                        } else {
+                            $('#FirstPermission').attr('style', 'display: none');
+                        }
+                    }">
+                    <div id="FirstPermission" style="display: none">
+                        一级功能：<input id="cc2" name="parentId" class="easyui-combobox" data-options="valueField:'pid',textField:'pname'">
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div style="text-align:center;padding:5px 0">
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()" style="width:80px">保存</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()" style="width:80px">清除</a>
+    </div>
+</div>
+<script>
+    $(function($) {
+        $.ajax({
+            type:"post",
+            url:"/permission/getUpdatePermission",
+            success:function(data) {
+                $('#pid').val(data.pid);
+                $('#pcode').textbox('setValue', data.pcode);
+                $('#pname').textbox('setValue', data.pname);
+                $('#purl').textbox('setValue', data.purl);
+                if (data.parentid == 0) {
+                    $('#cc1').combo('setText',"一级功能");
+                    $('#cc1').combo('setValue',"1");
+                } else {
+                    $('#cc1').combo('setText',"二级功能");
+                    $('#cc1').combo('setValue',"2");
+                    $('#FirstPermission').removeAttr('style');
+                    $('#cc2').combo('setText',data.remark1);
+                    $('#cc2').combo('setValue',data.parentid);
+                }
+            }
+        });
+    });
+
+
+    function submitForm(){
+        $('#updatePermsForm').form('submit', {
+            url:"permission/updatePermission",
+            success:function(data){
+                var obj = eval("(" + data + ")");
+                alert(obj.message);
+                if (obj.success) {
+                    window.location.href="permissionList.html";
+                } else {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+
+    function clearForm(){
+        $('#updatePermsForm').form('clear');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>添加员工</title>
+    <link rel="stylesheet" type="text/css" href="/css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/demo/demo.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div align="center">
+    <div style="margin:20px 0;"></div>
+    <form id="addEmployee" method="post">
+        <table>
+            <tr>
+                <td>员工姓名：</td>
+                <td><input name="ename" class="f1 easyui-textbox" required></td>
+            </tr>
+            <tr>
+                <td>员工性别：</td>
+                <td>
+                    男：<input type="radio" class="checkbox" name="esex" value="1" >
+                    女：<input type="radio" class="checkbox" name="esex" value="0" >
+                </td>
+            </tr>
+            <tr>
+                <td>员工年龄：</td>
+                <td><input name="eage" class="f1 easyui-textbox" required></td>
+            </tr>
+            <tr>
+                <td>员工电话：</td>
+                <td><input name="phone" class="f1 easyui-textbox" required></td>
+            </tr>
+            <tr>
+                <td>入职日期：</td>
+                <td><input name="hireDate" class="f1 easyui-datebox" data-options="formatter:myformatter,parser:myparser" required></td>
+            </tr>
+            <tr>
+                <td>员工工号：</td>
+                <td><input name="jobnumber" class="f1 easyui-textbox" required></td>
+            </tr>
+            <tr>
+                <td>初始密码：</td>
+                <td><input name="password" class="f1 easyui-textbox" required></td>
+            </tr>
+            <tr>
+                <td>员工角色：</td>
+                <td><input id="cc1" class="easyui-combobox" required name="rids" data-options="
+                        valueField: 'rid',
+                        textField: 'rname',
+                        multiple:true,
+                        url: '/role/getRoleList4AddEmployee'">
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div style="text-align:center;padding:5px 0">
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()" style="width:80px">添加</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()" style="width:80px">清除</a>
+    </div>
+</div>
+<script>
+    function myformatter(date){
+        var y = date.getFullYear();
+        var m = date.getMonth()+1;
+        var d = date.getDate();
+        return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+    }
+    function myparser(s){
+        if (!s) return new Date();
+        var ss = (s.split('-'));
+        var y = parseInt(ss[0],10);
+        var m = parseInt(ss[1],10);
+        var d = parseInt(ss[2],10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+            return new Date(y,m-1,d);
+        } else {
+            return new Date();
+        }
+    }
+    function submitForm(){
+        $('#addEmployee').form('submit', {
+            url:"employee/addEmployee",
+            success:function(data){
+                var obj = eval("(" + data + ")");
+                alert(obj.message);
+                if (obj.success) {
+                    window.location.href="employeeList.html";
+                } else {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+    function clearForm(){
+        $('#addEmployee').form('clear');
+    }
+</script>
+</body>
+</html>

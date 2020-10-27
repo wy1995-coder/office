@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>人员列表</title>
+    <link rel="stylesheet" type="text/css" href="/css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/demo/demo.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div style="margin:20px 0;"></div>
+<div id="tb">
+    <a href="addEmployee.html" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true">新增</a>
+    员工姓名：<input type="text" name="ename" id="ename">
+    员工工号：<input type="text" name="jobnumber" id="jobnumber">
+    <a onclick="SearchEmployee()" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">查询</a>
+    <a onclick="Reset()" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true">重置</a>
+    <a href="javascript:void(0)" onclick="BatchDeleteEmployee()" class="easyui-linkbutton" data-options="iconCls:'icon-cancel',plain:true">批量删除</a>
+    <a onclick="exportEmployee()" class="easyui-linkbutton" data-options="iconCls:'icon-print',plain:true">导出</a>
+</div>
+<table id="dg"></table>
+
+</body>
+<script type="text/javascript">
+    $('#dg').datagrid({
+        url:'employee/employeeList',
+        columns:[[
+            {field:'eid',title:'员工id',width:100,checkbox:true},
+            {field:'ename',title:'员工姓名',width:100},
+            {field:'esex',title:'员工性别',width:100,
+                formatter: function(value){
+                    if(value===1){
+                        return "男";
+                    }else {
+                        return "女";
+                    }
+                }
+            },
+            {field:'eage',title:'员工年龄',width:100},
+            {field:'phone',title:'员工电话',width:100},
+            {field:'hireDateStr',title:'入职日期',width:100,},
+            {field:'jobnumber',title:'员工工号',width:100},
+            {field:'operate',title:'操作', width:80,
+                formatter: function(value,row,index){
+                    return "<a href=javascript:void(0) onclick=EmployeeDetail(" + row.eid + ")>详情</a>\
+                        <a href=javascript:void(0) onclick=UpdateEmployee(" + row.eid + ")>修改</a>\
+                        <a href=javascript:void(0) onclick=DeleteEmployee(" + row.eid + ")>删除</a>";
+                }
+            }
+
+        ]],
+        pagination:true,
+        pageNumber:1,
+        pageSize:5,
+        pageList:[5,10,15],
+        fitColumns:true,
+        toolbar: '#tb'
+    });
+
+    // 查询数据
+    function SearchEmployee() {
+        $('#dg').datagrid('load', {
+            ename: $('#ename').val(),
+            jobnumber: $('#jobnumber').val()
+        });
+    }
+
+    // 重置查询
+    function Reset() {
+        $('#ename').val("");
+        $('#jobnumber').val("");
+        $('#dg').datagrid('load', {
+            ename: $('#ename').val(),
+            jobnumber: $('#jobnumber').val()
+        });
+    }
+
+    function UpdateEmployee(eid) {
+        $.ajax({
+            type:"post",
+            url:"/employee/updateEmployeeByEid?eid="+eid,
+            success:function(data) {
+                if (data.success) {
+                    window.location.href="/updateEmployee.html";
+                }
+            }
+        });
+    }
+
+    function exportEmployee() {
+        var obj = $('#dg').datagrid('getChecked');
+        if (obj.length === 0) {
+            window.location.href="employee/export";
+        } else {
+            var str = "";
+            for (var i = 0; i < obj.length; i++) {
+                str += obj[i].eid + ",";
+            }
+            window.location.href="employee/export?eids="+str;
+        }
+    }
+
+    function EmployeeDetail(eid) {
+        $.ajax({
+            type:"post",
+            url:"/employee/updateEmployeeByEid?eid="+eid,
+            success:function(data) {
+                if (data.success) {
+                    window.location.href="/employeeDetail.html";
+                }
+            }
+        });
+    }
+
+    function DeleteEmployee(eid) {
+        if (confirm("是否删除")){
+            $.ajax({
+                type:"post",
+                url:"/employee/deleteEmployeeByEid?eid="+eid,
+                success:function(data) {
+                    alert(data.message);
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                }
+            });
+        }
+    }
+
+    function BatchDeleteEmployee() {
+        if (confirm("是否删除")) {
+            var obj = $('#dg').datagrid('getChecked');
+            var str = "";
+            for (var i = 0; i < obj.length; i++) {
+                str += obj[i].eid + ",";
+            }
+            $.ajax({
+                type:"post",
+                url:"/employee/batchDeleteEmployee?eids="+str,
+                success:function(data) {
+                    alert(data.message);
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                }
+            })
+        }
+    }
+</script>
+</html>
+

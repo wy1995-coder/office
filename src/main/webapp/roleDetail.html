@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>角色详情</title>
+    <link rel="stylesheet" type="text/css" href="/css/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/css/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/css/demo/demo.css">
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div align="center">
+    <div style="margin:20px 0;"></div>
+    <form id="updateRole" method="post">
+        <input type="hidden" id="rid" name="rid" >
+        <table>
+            <tr>
+                <td>角色编码：</td>
+                <td><input name="rcode" data-options="readonly:true" id="rcode" class="f1 easyui-textbox"></td>
+            </tr>
+            <tr>
+                <td>角色名称：</td>
+                <td><input name="rname"  data-options="readonly:true" id="rname" class="f1 easyui-textbox"></td>
+            </tr>
+            <tr>
+                <td>权限列表：</td>
+                <td><ul id="tt"></ul></td>
+            </tr>
+        </table>
+    </form>
+    <div style="text-align:center;padding:5px 0">
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()" style="width:80px">返回</a>
+    </div>
+</div>
+<script>
+    $(function($) {
+        $.ajax({
+            type:"post",
+            url:"role/getRoleFromSession",
+            success:function(data) {
+                $('#rid').val(data.rid);
+                $('#rcode').textbox('setValue', data.rcode);
+                $('#rname').textbox('setValue', data.rname);
+                $('#tt').tree({
+                    url:"permission/getRoleDetailPer?rid="+data.rid
+                });
+            }
+        });
+    });
+
+    function clearForm(){
+        window.location.href="roleList.html";
+    }
+</script>
+</body>
+</html>
